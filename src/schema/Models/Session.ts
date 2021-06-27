@@ -1,6 +1,6 @@
 import { objectType } from 'nexus'
 import { Context } from '../../context'
-
+/* 
 export const Session = objectType({
   name: 'Session',
   definition(t) {
@@ -22,3 +22,4 @@ export const Session = objectType({
     })
   }
 })
+ */
