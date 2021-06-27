@@ -1,8 +1,8 @@
 export interface Token {
-  userId: string
+  _uid: string
 }
 export interface SessionInfo {
-  userId: number
+  userId: string
   sessionId: number
   token: string
 }

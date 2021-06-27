@@ -1,7 +1,20 @@
-import { queryField } from 'nexus'
+import { list, nonNull, queryField } from 'nexus'
 import { Context } from '../../../context'
 import { getSessionInfo } from '../../../utils'
 
+export const sessionsQuery = queryField('sessions', {
+  type: list(nonNull('SessionPayload')),
+  resolve: async (parent, args, context: Context) => {
+    const { userId }: any = getSessionInfo(context)
+    return await context.prisma.session.findMany({
+      where: {
+        userId: userId
+      }
+    })
+  }
+})
+
+/*
 export const sessionsQuery = queryField((t) => {
   t.nonNull.list.nonNull.field('sessions', {
     type: 'Session',
@@ -45,3 +58,4 @@ export const sessionQuery = queryField((t) => {
     }
   })
 })
+ */

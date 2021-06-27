@@ -18,7 +18,7 @@ export const meQuery = queryField((t) => {
       const { userId }: any = getSessionInfo(context)
       return await context.prisma.user.findUnique({
         where: {
-          id: Number(userId)
+          id: userId
         }
       })
     }

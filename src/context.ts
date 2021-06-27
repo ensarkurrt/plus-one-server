@@ -1,6 +1,9 @@
 import { PrismaClient } from '@prisma/client'
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient({
+  errorFormat: 'minimal', // minimal, pretty
+  rejectOnNotFound: false
+})
 
 export interface Context {
   prisma: PrismaClient
