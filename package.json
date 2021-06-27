@@ -16,7 +16,7 @@
     "generate:prisma": "prisma generate",
     "generate:nexus": "ts-node --transpile-only src/schema"
   },
-  "author": "Avocuda",
+  "author": "PlusOne",
   "license": "ISC",
   "dependencies": {
     "@prisma/client": "^2.21.2",
