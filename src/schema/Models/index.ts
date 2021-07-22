@@ -1,2 +1,2 @@
-export * from './Session'
+export * from './Match'
 export * from './User'

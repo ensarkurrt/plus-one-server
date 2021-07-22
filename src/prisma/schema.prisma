@@ -1,7 +1,6 @@
 datasource db {
     provider = "postgresql"
     url      = env("DATABASE_URL")
-
 }
 
 generator client {
@@ -10,34 +9,21 @@ generator client {
 }
 
 model User {
-    id        String    @id @default(uuid())
-    email     String    @unique
-    username  String    @unique
-    password  String
-    updatedAt DateTime  @updatedAt
-    createdAt DateTime  @default(now())
-    sessions  Session[]
-
-}
-
-model Session {
-    id          String        @id @default(uuid())
-    token       String        @unique
-    user        User          @relation(fields: [userId], references: [id])
-    userId      String
-    usedAt      DateTime      @updatedAt
-    createdAt   DateTime      @default(now())
-    sessionData SessionData[]
-}
-
-model SessionData {
     id        String   @id @default(uuid())
-    key       String
-    value     String
-    session   Session  @relation(fields: [sessionId], references: [id])
-    sessionId String
+    email     String   @unique
+    username  String   @unique
+    password  String
+    bestScore Int      @default(0)
+    matchs    Match[]
     updatedAt DateTime @updatedAt
     createdAt DateTime @default(now())
+}
 
-    @@unique([key, sessionId])
+model Match {
+    id        String   @id @default(uuid())
+    userId    String
+    user      User     @relation(fields: [userId], references: [id])
+    moves     Int      @default(0)
+    updatedAt DateTime @updatedAt
+    createdAt DateTime @default(now())
 }

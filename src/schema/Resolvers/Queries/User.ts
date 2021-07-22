@@ -1,26 +1,17 @@
-import { queryField } from 'nexus'
+import { nonNull, queryField } from 'nexus'
 import { Context } from '../../../context'
 import { getSessionInfo } from '../../../utils'
+import { UserOutput } from '../../Models/User'
 
-export const allUsersQuery = queryField((t) => {
-  t.nonNull.list.nonNull.field('allUsers', {
-    type: 'User',
-    resolve: async (parent, args, context: Context) => {
-      return await context.prisma.user.findMany()
-    }
-  })
-})
-
-export const meQuery = queryField((t) => {
-  t.nonNull.field('me', {
-    type: 'User',
-    resolve: async (parent, args, context: Context) => {
-      const { userId }: any = getSessionInfo(context)
-      return await context.prisma.user.findUnique({
-        where: {
-          id: userId
-        }
-      })
-    }
-  })
+export const meQuery = queryField('me', {
+  type: nonNull(UserOutput),
+  resolve: async (parent, args, context: Context) => {
+    const { _uid }: any = getSessionInfo(context)
+    return await context.prisma.user.findUnique({
+      where: {
+        id: _uid
+      },
+      rejectOnNotFound: true
+    })
+  }
 })

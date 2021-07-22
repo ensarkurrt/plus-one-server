@@ -1,18 +1,12 @@
-import { allow, not, rule, shield } from 'graphql-shield'
-import { getSessionInfo } from '../utils'
+import { allow, rule, shield } from 'graphql-shield'
 import { Context } from '../context'
+import { getSessionInfo } from '../utils'
 
 const rules = {
   isAuthenticatedUser: rule()(
     async (_parent: any, _args: any, context: Context) => {
-      const { userId, sessionId }: any = getSessionInfo(context)
-      const currentSession = await context.prisma.session.findFirst({
-        where: {
-          userId: userId,
-          id: sessionId
-        }
-      })
-      return Boolean(currentSession)
+      const { _uid, token }: any = getSessionInfo(context)
+      return Boolean(_uid)
     }
   ),
   isPostOwner: rule()(async (_parent: any, args: any, context: Context) => {
@@ -32,8 +26,8 @@ const rules = {
 export const permissions = shield(
   {
     Query: {
-      me: rules.isAuthenticatedUser,
-      sessions: rules.isAuthenticatedUser
+      me: rules.isAuthenticatedUser
+      /* sessions: rules.isAuthenticatedUser */
       /*session: rules.isAuthenticatedUser */
     },
     Mutation: {}

@@ -1,59 +1,33 @@
-import { Prisma } from '@prisma/client'
 import { compare, hash } from 'bcryptjs'
-import { sign } from 'jsonwebtoken'
-import { mutationField, nonNull, stringArg } from 'nexus'
+import { arg, mutationField, nonNull } from 'nexus'
 import { Context } from '../../../context'
-import { APP_SECRET } from '../../../utils'
-import moment from 'moment-timezone'
+import { createSessionToken } from '../../../utils'
+import { AuthPayload, SignInInput, SignUpInput } from '../../Models/User'
 
-export const signupMutation = mutationField('signup', {
-  type: 'AuthPayload',
+export const SignUpMutation = mutationField('signUp', {
+  type: AuthPayload,
   args: {
-    username: nonNull(stringArg()),
-    email: nonNull(stringArg()),
-    password: nonNull(stringArg())
+    input: nonNull(
+      arg({
+        type: SignUpInput
+      })
+    )
   },
-  async resolve(parent, { password, username, email }, context) {
-    const hashedPassword = await hash(password, 10)
+  async resolve(parent, { input }, context) {
+    const { email, password, username } = input
+    const _password = await hash(password, 10)
     try {
       const user = await context.prisma.user.create({
         data: {
           username,
           email,
-          password: hashedPassword
+          password: _password
         }
       })
-
-      const token = sign({ _uid: user.id }, APP_SECRET)
-
-      const session = await context.prisma.session.create({
-        data: {
-          token,
-          sessionData: {
-            createMany: {
-              data: [
-                {
-                  key: 'ip',
-                  value: '1.1.1.1'
-                },
-                {
-                  key: 'device',
-                  value: 'iPhoneXr'
-                }
-              ]
-            }
-          },
-          user: {
-            connect: {
-              id: user.id
-            }
-          }
-        }
-      })
-      const generatedToken = session.id + '|' + token
+      const token = createSessionToken(user)
 
       return {
-        token: generatedToken,
+        token,
         user
       }
     } catch (error) {
@@ -62,65 +36,32 @@ export const signupMutation = mutationField('signup', {
   }
 })
 
-export const signinMutation = mutationField('signin', {
-  type: 'AuthPayload',
+export const SignInMutation = mutationField('signIn', {
+  type: AuthPayload,
   args: {
-    email: nonNull(stringArg()),
-    password: nonNull(stringArg())
+    input: nonNull(
+      arg({
+        type: SignInInput
+      })
+    )
   },
-  resolve: async (_parent, { email, password }, context: Context) => {
+  resolve: async (_parent, { input }, context: Context) => {
+    const { username, password } = input
     const user = await context.prisma.user.findUnique({
       where: {
-        email
-      }
-    })
-    if (!user) {
-      throw new Error(`No user found for email: ${email}`)
-    }
-    const passwordValid = await compare(password, user.password)
-    if (!passwordValid) {
-      throw new Error('Invalid password')
-    }
-
-    //MOMENT TIMEZONE https://momentjs.com/timezone/
-    //TODO:: add exp date
-    const token = sign(
-      {
-        _uid: user.id
+        username
       },
-      APP_SECRET
-    )
-
-    //TODO:: set real data
-    const session = await context.prisma.session.create({
-      data: {
-        token,
-        sessionData: {
-          createMany: {
-            data: [
-              {
-                key: 'ip',
-                value: '1.1.1.1'
-              },
-              {
-                key: 'device',
-                value: 'iPhoneXr'
-              }
-            ],
-            skipDuplicates: false
-          }
-        },
-        user: {
-          connect: {
-            id: user.id
-          }
-        }
-      }
+      rejectOnNotFound: true
     })
-    const generatedToken = session.id + '|' + token
+    if (!user) throw new Error(`No user found for username: ${username}`)
+
+    const passwordValid = await compare(password, user.password)
+    if (!passwordValid) throw new Error('Invalid password')
+
+    const token = createSessionToken(user)
 
     return {
-      token: generatedToken,
+      token,
       user
     }
   }

@@ -1,5 +1,5 @@
-import { inputObjectType, list, objectType } from 'nexus'
-import { Context } from '../../context'
+import { inputObjectType, objectType } from 'nexus'
+import { Match } from './Match'
 
 export const User = objectType({
   name: 'User',
@@ -8,31 +8,27 @@ export const User = objectType({
     t.nonNull.string('username')
     t.nonNull.string('email')
     t.nonNull.string('password')
-    t.nonNull.list.nonNull.field('sessions', {
-      type: 'Session',
-      resolve({ id }, _, context) {
-        return context.prisma.user.findUnique({ where: { id } }).sessions()
-      }
+    t.nonNull.int('bestScore')
+    t.list.nonNull.field('matchs', {
+      type: Match
     })
     t.nonNull.field('updatedAt', { type: 'DateTime' })
     t.nonNull.field('createdAt', { type: 'DateTime' })
   }
 })
-/* 
-export const UserUniqueInput = inputObjectType({
-  name: 'UserUniqueInput',
-  definition(t) {
-    t.int('id')
-    t.string('email')
-  }
-}) */
 
-export const UserCreateInput = inputObjectType({
-  name: 'UserCreateInput',
+export const UserOutput = objectType({
+  name: 'UserOutput',
   definition(t) {
-    t.nonNull.string('email')
+    t.nonNull.string('id')
     t.nonNull.string('username')
-    t.nonNull.string('password')
+    t.nonNull.string('email')
+    t.nonNull.int('bestScore')
+    t.list.nonNull.field('matchs', {
+      type: Match
+    })
+    t.nonNull.field('updatedAt', { type: 'DateTime' })
+    t.nonNull.field('createdAt', { type: 'DateTime' })
   }
 })
 
@@ -41,5 +37,22 @@ export const AuthPayload = objectType({
   definition(t) {
     t.nonNull.string('token')
     t.nonNull.field('user', { type: 'User' })
+  }
+})
+
+export const SignUpInput = inputObjectType({
+  name: 'SignUpInput',
+  definition(t) {
+    t.nonNull.string('email')
+    t.nonNull.string('username')
+    t.nonNull.string('password')
+  }
+})
+
+export const SignInInput = inputObjectType({
+  name: 'SignInInput',
+  definition(t) {
+    t.nonNull.string('username')
+    t.nonNull.string('password')
   }
 })
