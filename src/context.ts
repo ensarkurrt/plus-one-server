@@ -2,7 +2,8 @@ import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient({
   errorFormat: 'minimal', // minimal, pretty
-  rejectOnNotFound: false
+  rejectOnNotFound: true,
+  log: ['query']
 })
 
 export interface Context {
