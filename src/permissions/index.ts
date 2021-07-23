@@ -26,11 +26,11 @@ const rules = {
 export const permissions = shield(
   {
     Query: {
-      me: rules.isAuthenticatedUser
-      /* sessions: rules.isAuthenticatedUser */
-      /*session: rules.isAuthenticatedUser */
+      me: rules.isAuthenticatedUser,
+      matchs: rules.isAuthenticatedUser
+      /* leaderBoard: rules.isAuthenticatedUser */
     },
-    Mutation: {}
+    Mutation: { saveMatch: rules.isAuthenticatedUser }
   },
   {
     fallbackRule: allow,
