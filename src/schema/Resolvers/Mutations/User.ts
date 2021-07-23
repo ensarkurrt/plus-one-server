@@ -5,7 +5,7 @@ import { createSessionToken } from '../../../utils'
 import { AuthPayload, SignInInput, SignUpInput } from '../../Models/User'
 
 export const SignUpMutation = mutationField('signUp', {
-  type: AuthPayload,
+  type: nonNull(AuthPayload),
   args: {
     input: nonNull(
       arg({
@@ -37,7 +37,7 @@ export const SignUpMutation = mutationField('signUp', {
 })
 
 export const SignInMutation = mutationField('signIn', {
-  type: AuthPayload,
+  type: nonNull(AuthPayload),
   args: {
     input: nonNull(
       arg({
@@ -59,7 +59,6 @@ export const SignInMutation = mutationField('signIn', {
     if (!passwordValid) throw new Error('Invalid password')
 
     const token = createSessionToken(user)
-
     return {
       token,
       user

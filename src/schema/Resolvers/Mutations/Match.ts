@@ -1,3 +1,4 @@
+import { User } from '@prisma/client'
 import { arg, mutationField, nonNull } from 'nexus'
 import { getSessionUser } from '../../../utils'
 import { Match, SaveMatchInput } from '../../Models/Match'
@@ -13,19 +14,19 @@ export const saveMatchMutation = mutationField('saveMatch', {
   },
   async resolve(parent, { input }, context) {
     const { moves } = input
-    const user = await getSessionUser(context)
+    const { id, bestScore }: User = await getSessionUser(context)
 
     try {
       const match = context.prisma.match.create({
-        data: { moves: moves, user: { connect: { id: user?.id } } },
+        data: { moves, user: { connect: { id } } },
         include: {
           user: true
         }
       })
 
-      if (user?.bestScore && moves > user?.bestScore)
+      if (bestScore && moves > bestScore)
         await context.prisma.user.update({
-          where: { id: user.id },
+          where: { id },
           data: { bestScore: moves }
         })
 
