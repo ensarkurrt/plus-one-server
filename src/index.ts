@@ -7,10 +7,10 @@ const server = new ApolloServer({
   context: createContext
 })
 
-server.listen().then(({ url }) =>
+server.listen().then(({ url, subscriptionsPath }) => {
   console.log(
     `\
-🚀 Server ready at: ${url}
+🚀 Server ready at: ${url.substring(0, url.length - 1)}${subscriptionsPath}
 `
   )
-)
+})
