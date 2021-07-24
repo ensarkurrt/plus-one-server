@@ -24,7 +24,7 @@ export const saveMatchMutation = mutationField('saveMatch', {
         }
       })
 
-      if (bestScore && moves > bestScore)
+      if (moves < bestScore)
         await context.prisma.user.update({
           where: { id },
           data: { bestScore: moves }

@@ -1,8 +1,8 @@
 import { User } from '@prisma/client'
-import { list, nonNull, queryField } from 'nexus'
+import { arg, list, nonNull, queryField } from 'nexus'
 import { Context } from '../../../context'
 import { getSessionUser } from '../../../utils'
-import { Match, UserOutput } from '../../Models'
+import { LeaderBoardInput, Match, UserOutput } from '../../Models'
 
 export const matchsQuery = queryField('matchs', {
   type: list(nonNull(Match)),
@@ -21,16 +21,40 @@ export const matchsQuery = queryField('matchs', {
 
 export const leaderBoardQuery = queryField('leaderBoard', {
   type: list(nonNull(UserOutput)),
-  resolve: async (parent, args, context: Context) => {
-    return await context.prisma.user.findMany({
-      orderBy: {
-        bestScore: 'asc'
-      },
-      where: {
-        bestScore: {
-          gt: 0
-        }
-      }
+  args: {
+    input: arg({
+      type: LeaderBoardInput
     })
+  },
+  resolve: async (parent, { input }, context: Context) => {
+    const { limit, cursor }: any = input
+    if (cursor != null)
+      return await context.prisma.user.findMany({
+        take: limit,
+        skip: 1,
+        cursor: {
+          id: cursor
+        },
+        orderBy: {
+          bestScore: 'asc'
+        },
+        where: {
+          bestScore: {
+            gt: 0
+          }
+        }
+      })
+    else
+      return await context.prisma.user.findMany({
+        take: limit,
+        orderBy: {
+          bestScore: 'asc'
+        },
+        where: {
+          bestScore: {
+            gt: 0
+          }
+        }
+      })
   }
 })

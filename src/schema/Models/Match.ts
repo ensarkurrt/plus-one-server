@@ -18,3 +18,11 @@ export const SaveMatchInput = inputObjectType({
     t.nonNull.int('moves')
   }
 })
+
+export const LeaderBoardInput = inputObjectType({
+  name: 'LeaderBoardInput',
+  definition(t) {
+    t.nonNull.int('limit')
+    t.string('cursor')
+  }
+})
