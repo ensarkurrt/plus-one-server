@@ -1,4 +1,5 @@
 import { inputObjectType, objectType } from 'nexus'
+import { Context } from '../../context'
 import { Match } from './Match'
 
 export const User = objectType({
@@ -24,6 +25,32 @@ export const UserOutput = objectType({
     t.nonNull.string('username')
     t.nonNull.string('email')
     t.nonNull.int('bestScore')
+    t.nonNull.int('matchCount', {
+      resolve: async ({ id }, _, context: Context) => {
+        return await context.prisma.match.count({
+          where: {
+            userId: id
+          }
+        })
+      }
+    })
+    t.nonNull.int('rank', {
+      resolve: async ({ id }, _a, context: Context) => {
+        const users = await context.prisma.user.findMany({
+          take: 99,
+          orderBy: {
+            bestScore: 'asc'
+          },
+          where: {
+            bestScore: {
+              gt: 0
+            }
+          }
+        })
+        const rank = users.findIndex((user) => user.id === id)
+        return rank == -1 ? 0 : rank + 1
+      }
+    })
     t.list.nonNull.field('matchs', {
       type: Match
     })
@@ -36,7 +63,7 @@ export const AuthPayload = objectType({
   name: 'AuthPayload',
   definition(t) {
     t.nonNull.string('token')
-    t.nonNull.field('user', { type: 'User' })
+    t.nonNull.field('user', { type: UserOutput })
   }
 })
 
