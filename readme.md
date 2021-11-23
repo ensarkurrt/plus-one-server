@@ -1,3 +1,5 @@
+the backend api of the game called plus one that I am developing
+
 POSTGRESQL on Docker
 
 `docker run --name docker_postgres -e POSTGRES_PASSWORD=123456 -d -p 5432:5432 -v $HOME/docker/volumes/postgres:/var/lib/postgresql/data postgres`
